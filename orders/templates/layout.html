@@ -22,7 +22,7 @@
 </head>
 
 <body id="page-top">
-
+{% include 'includes/_messages.html' %}
   <!-- Page Wrapper -->
   <div id="wrapper">
 
@@ -72,10 +72,33 @@
         <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
           <div class="bg-white py-2 collapse-inner rounded">
             <h6 class="collapse-header">Custom Components:</h6>
-            <a class="collapse-item" href="/order">Make oreder</a>
+            <a class="collapse-item" href="/order">Place Order</a>
             <a class="collapse-item" href="/manageorder">Manage order</a>
+            <a class="collapse-item" href="/manageorder">Order History - dev</a>
           </div>
         </div>
+      </li>
+
+      <!-- add_setting_nav_ite  -->
+      <!-- Divider -->
+      <hr class="sidebar-divider my-0">
+
+  <!-- Nav Item - Pages Collapse Menu -->
+      <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseSetting" aria-expanded="true" aria-controls="collapseSetting">
+          <i class="fas fa-shopping-cart"></i>
+          <span>Settings</span>
+        </a>
+        <div id="collapseSetting" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+          <div class="bg-white py-2 collapse-inner rounded">
+            <h6 class="collapse-header">Custom Settings:</h6>
+            <a class="collapse-item" href="/users">Users</a>
+            <a class="collapse-item" href="/suppliers">Manage Suppliers</a>
+            <a class="collapse-item" href="/suppliers">Manage Items</a>
+          </div>
+        </div>
+
+
       </li>
 
       <!-- Nav Item - Utilities Collapse Menu -->
@@ -389,9 +412,23 @@
     </div>
   </div>
 
+
+
+
   <!-- Bootstrap core JavaScript-->
   <script src="{{url_for('static',filename='vendor/jquery/jquery.min.js')}}"></script>
   <script src="{{url_for('static',filename='vendor/bootstrap/js/bootstrap.bundle.min.js')}}"></script>
+
+<!--  &lt;!&ndash;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45; Start of add 02/04/2023 &ndash;&gt;-->
+<!--  &lt;!&ndash; Bootstrap &ndash;&gt;-->
+<!--  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">-->
+<!--  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>-->
+
+<!--  &lt;!&ndash; Bootstrap Multiselect &ndash;&gt;-->
+<!--  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css" />-->
+<!--  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>-->
+<!--  &lt;!&ndash;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45; End of add 02/04/2023 &ndash;&gt;-->
+
 
   <!-- Core plugin JavaScript-->
   <script src="{{url_for('static',filename='vendor/jquery-easing/jquery.easing.min.js')}}"></script>

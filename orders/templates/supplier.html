@@ -1,0 +1,115 @@
+
+
+{% extends 'layout.html' %}
+{% block title %}Order{% endblock %}
+{% block body %}
+
+<!-- Button trigger modal -->
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+    Add supplier
+</button>
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+
+                <h5 class="modal-title" id="exampleModalLabel">Add new Supplier</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" id="supplier-form">
+                    {% include 'includes/_messages.html' %}
+
+                    <div class="form-group">
+                        <label for="exampleInput">Name of supplier</label>
+                        <input type="text" class="form-control" name="name" id="exampleInput"
+                               placeholder="Name of supplier">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="exampleInput1">Address of supplier</label>
+                        <input type="text" class="form-control" name="address" id="exampleInput1"
+                               placeholder="Supplier address">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="exampleInput2">Contacts</label>
+                        <input type="text" class="form-control" name="phone" id="exampleInput2"
+                               placeholder="Phone number of supplier">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="exampleInput3">Notes</label>
+                        <input type="text" class="form-control" name="note" id="exampleInput3"
+                               placeholder="Insert a note if needed" , value="">
+                    </div>
+
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" name="submit"  class="btn btn-primary">Save changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<br><br>
+
+<table class="table table-striped" id="dataTable">
+    <thead>
+
+    <tr>
+        <th scope="col">Name</th>
+        <th scope="col">Address</th>
+        <th scope="col">Contact</th>
+        <th scope="col">Notes</th>
+        <th scope="col">Action</th>
+    </tr>
+
+    </thead>
+    <tbody>
+    {% for supplier in suppliers %}
+    <tr>
+        <th>{{supplier.name}}</th>
+        <td>{{supplier.address}}</td>
+        <td>{{supplier.contact}}</td>
+        <td>{{supplier.note}}</td>
+        <td><a href="/supplier/update/{{supplier.id}}">
+            <button type="button" class="btn btn-primary btn-circle btn-sm"><i class="far fa-edit"></i></button>
+        </a>
+            <a data-toggle="modal" data-target="#deleteModal{{supplier.id}}">
+                <button type="button" class="btn btn-danger btn-circle btn-sm"><i class="far fa-trash-alt"></i></button>
+            </a>
+        </td>
+    </tr>
+    <!-- delete model -->
+    <div class="modal fade" id="deleteModal{{supplier.id}}" tabindex="-1" role="dialog"
+         aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">Delete Supplier?</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <form action="{{ url_for('delete_supplier', supplier_id=supplier.id) }}" method="POST">
+                        <input class="btn btn-danger" type="submit" value="Delete">
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

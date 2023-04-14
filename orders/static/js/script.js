@@ -1,5 +1,44 @@
-var row_id = document.getElementById("item_table").rows.length;
+var row_id = null;
+var order_table_id = "item_table";
+var product_table_id = "dataTable";
+
+if (document.getElementById(order_table_id) !== null) {
+    var row_id = document.getElementById(order_table_id).rows.length;
+}
+else if (document.getElementById(product_table_id) !== null) {
+    var row_id = document.getElementById(product_table_id).rows.length;
+}
+
+
 console.log(row_id);
+
+
+function addFilter() {
+  // get the index of the last filter row
+  const filterRows = document.querySelectorAll('.filter-form');
+  const lastIndex = filterRows.length - 1;
+
+  // clone the last filter row and update the index
+  const lastRow = filterRows[lastIndex];
+  const newRow = lastRow.cloneNode(true);
+  const newIndex = lastIndex + 1;
+
+  // update the IDs and names of the cloned row's form elements
+  const idRegex = /-\d+/;
+  const nameRegex = /_\d+/;
+  newRow.id = newRow.id.replace(idRegex, `-${newIndex}`);
+  Array.from(newRow.querySelectorAll('[id]')).forEach(el => {
+    el.id = el.id.replace(idRegex, `-${newIndex}`);
+  });
+  Array.from(newRow.querySelectorAll('[name]')).forEach(el => {
+    el.name = el.name.replace(nameRegex, `_${newIndex}`);
+  });
+
+  // add the cloned row after the last filter row
+  lastRow.parentNode.insertBefore(newRow, lastRow.nextSibling);
+}
+
+
 
 $(document).ready(function(){
 
@@ -11,7 +50,26 @@ $('.item_bar').focus();
  $(document).on('click', '.remove',function(){
   $(this).closest('tr').remove();
   totalamount();
+  console.log("Inside function remove")
  });
+
+ //autocomplete set to 'on' if input value is greater than or equal to 3
+$(document).ready(function() {
+  $('.autocomplete').on('input', function() {
+    autocompleteFunction(this.value);
+  });
+});
+
+function autocompleteFunction(value) {
+  const inputField = document.querySelector('.autocomplete');
+  if (value.length >= 3) {
+    inputField.setAttribute('autocomplete', 'on');
+  } else {
+    inputField.setAttribute('autocomplete', 'off');
+  }
+}
+
+
 
 //prevent enter to work on the page
  $(document).keypress(function(event){
@@ -22,7 +80,7 @@ $('.item_bar').focus();
 
 //insert data to database
  $('#insert_form').on('submit', function(event){
-
+     alert("why")
   event.preventDefault();
   var error = '';
   $('.item_bar').each(function(){
@@ -72,6 +130,175 @@ $('.item_bar').focus();
  });
 
 });
+
+
+
+    $('#supplier-form').on('submit', function(event){
+        console.log("inside")
+        // alert("this")
+        event.preventDefault();
+        $.ajax({
+            type: "POST",
+            url: "/suppliers",
+            data: $('#supplier-form').serialize(),
+            success: function(response) {
+                // If the server returns a success message, close the modal and reload the page
+                if (response.success) {
+                    console.log("success")
+                    $('#exampleModal').modal('hide');
+                    location.reload();
+                } else {
+                    // If the server returns an error message, display it inside the modal
+                    $('.modal-body #supplier-form').prepend('<div class="alert alert-danger">' + response.error + '</div>');
+                    console.log("not success")
+
+                }
+            },
+            error: function(response) {
+                // If the server returns an error, display an error message inside the modal
+                $('#supplier-form .modal-body').prepend('<div class="alert alert-danger">An error occurred...</div>');
+            }
+        });
+    });
+
+// Product: Pass the selected supplier's id and name from the form-control back to Flask
+  $('#exampleInput4').change(function() {
+    var supplierName = $('#exampleInput4 option:selected').text();
+    console.log(supplierName)
+    $('#supplierName').val(supplierName);
+  });
+
+
+
+
+//// Product: initialize the multiselect plugin
+//$(document).ready(function() {
+//    $('.bootstrap-multiselect').multiselect();
+//});
+
+// Product: Run filter to filter table display in product 02/04/2023
+$(document).ready(function () {
+       $('#filter-form').on('submit', function (event) {
+            console.log("In #filter-form");
+            var supplierName = $('#filter-form option:selected').text();
+            console.log(supplierName);
+            $('#selectedSupplier').val(supplierName);
+           // // Product: Pass the selected supplier's id and name from the form-control back to Flask
+           // event.preventDefault();
+           // var supplierId = $('#supplier-select').val();
+           // $('tbody tr').show();
+           // if (supplierId) {
+           //     $('tbody tr').not('[data-supplier-id="' + supplierId + '"]').hide();
+           // }
+       });
+   });
+
+// Filter icon section 02/04/2023
+$(document).ready(function() {
+   // $('.filter-icon').click(function() {
+   //     $(this).siblings('.filter-form').toggle();
+   // });
+
+$(document).ready(function() {
+  $('.filter-icon').click(function() {
+    $('.filter-container').toggleClass('d-none');
+  });
+});
+
+  // add new filter-form when the "Add filter +" button is clicked
+// select the button and attach a click event listener
+$('.add-filter-btn').click(function () {
+  // get the filter container element
+  var filterContainer = $(this).closest('.filter-container');
+
+  // add the new filter form
+  addFilter(filterContainer);
+
+  // retrieve the data from the session
+  var data = JSON.parse('{{ session["data"]|default("[]") }}');
+
+  // create a new filter object and add it to the data
+  var filter = {
+    'column': '',
+    'condition': '',
+    'value': ''
+  };
+  data.push(filter);
+
+  // store the updated data in the session
+  $.ajax({
+    url: '/store_data',
+    type: 'GET',
+    data: { value: data },
+    success: function(response) {
+      console.log(response);
+    },
+    error: function(error) {
+      console.log(error);
+    }
+  });
+});
+});
+
+$(document).ready(function() {
+  // load filters from the server
+  $.ajax({
+    url: '/retrieve_data',
+    type: 'GET',
+    success: function(data) {
+      // loop through the filters and fill in the form fields
+      for (var i = 0; i < data.filters.length; i++) {
+        var filter = data.filters[i];
+        var filterForm = $('.filter-form').eq(i);
+        filterForm.find('.filter-column').val(filter.column);
+        filterForm.find('.filter-condition').val(filter.condition);
+        filterForm.find('.filter-value').val(filter.value);
+      }
+    },
+    error: function(error) {
+      console.log(error);
+    }
+  });
+});
+
+
+
+// save the chosen filters when the "Save changes" button is clicked
+// $('.save-changes-btn').click(function () {
+$('#filter-property-form').on('submit', function (event) {
+    var filters = [];
+    $('.filter-container').find('.filter-form').each(function () {
+        var column = $(this).find('.filter-column').val();
+        var condition = $(this).find('.filter-condition').val();
+        var value = $(this).find('.filter-value').val();
+        if (column && condition && value) {
+        filters.push({
+                'column': column,
+                'condition': condition,
+                'value': value
+            });
+        }
+    });
+    console.log(filters)
+    // $('#filterQuery').val(filters);
+    // $.ajax({
+    //     type: 'GET',
+    //     url: '/products',
+    //     data: {'filters': JSON.stringify(filters)},
+    //     success: function(response) {
+    //         // do something with the response from the server
+    //         console.log("Done")
+    //     }
+    // });
+});
+
+
+// clear all filters when the "x Clear all" button is clicked
+$('.clear-all-btn').click(function () {
+    $('.filter-form').not(':first').remove();
+    $('.filter-form:first').find('.filter-column, .filter-condition, .filter-value').val('');
+    });
+
 
 
 
