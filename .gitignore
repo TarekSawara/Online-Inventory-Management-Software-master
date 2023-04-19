@@ -1,0 +1,24 @@
+# Compiled python files
+__pycache__/
+*.pyc
+
+# Distribution / packaging
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environments
+venv/
+.env/
+
+# IDE files
+.idea/
+.vscode/
+
+# System generated files
+.DS_Store
+Thumbs.db
+
+# Ignore the env file if you're using environment variables to manage secrets
+.env

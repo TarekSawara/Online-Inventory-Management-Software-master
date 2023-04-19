@@ -22,3 +22,6 @@ Apply the migration to the database by running the following command:
 
 [venv activate]
 python -m venv venv
+
+[pdfkit]
+install manually using : https://github.com/JazzCore/python-pdfkit/wiki/Installing-wkhtmltopdf

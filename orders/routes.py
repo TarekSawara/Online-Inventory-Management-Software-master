@@ -169,7 +169,27 @@ def roles():
 @app.route('/order')
 @login_required
 def order():
-    return render_template('makeorder.html')
+    used_suppliers_query = Suppliers.query.filter(Suppliers.products.any()).all()
+
+    selected_supplier_id = request.args.get('selected_supplier_id')
+    if selected_supplier_id:
+        selected_supplier_id = int(selected_supplier_id)
+        filter_query = Products.supplier_id == selected_supplier_id
+    else:
+        filter_query = None
+
+
+    if filter_query is None:
+        products = Products.query.all()
+    else:
+        products = db.session.query(Products).filter(filter_query).all()
+        # return render_template('product_table.html', products=products_query)
+
+
+    return render_template('makeorder.html',
+                           products=products,
+                           filter_dropdown_cols=used_suppliers_query,
+                           selected_supplier_id=selected_supplier_id)
 
 
 @app.route('/insert', methods=['POST'])
@@ -177,17 +197,17 @@ def order():
 def insert():
     barcode = request.form.getlist('item_bar[]')
     qua = request.form.getlist('item_quantity[]')
-    name = request.form.getlist('item_name[]')
+    name = request.form.getlist('product_name[]')
     total = request.form.getlist('total[]')
     price = request.form.getlist('price[]')
     total_amount = request.form.get('total_amount')
 
-    for n, q in zip(barcode, qua):
-        product = Products.query.filter_by(barcode=n).first()
-        if product.quantity > 0:
-            product.quantity = product.quantity - int(q)
-        else:
-            print("you do not have this much of quantity", n)
+    # for n, q in zip(barcode, qua):
+    #     product = Products.query.filter_by(barcode=n).first()
+    #     if product.quantity > 0:
+    #         product.quantity = product.quantity - int(q)
+    #     else:
+    #         print("you do not have this much of quantity", n)
     db.session.commit()
 
     add = Orders(total_amount=total_amount, user_order=current_user)
@@ -223,10 +243,12 @@ def products():
         filter_query = create_filter_query(filter_structure=filters, model=Products)
         selected_supplier_id = request.args.get('selected_supplier_id')
         if selected_supplier_id:
+            selected_supplier_id = int(selected_supplier_id)
             filter_query = and_(filter_query, Products.supplier_id == selected_supplier_id)
     else:
         selected_supplier_id = request.args.get('selected_supplier_id')
         if selected_supplier_id:
+            selected_supplier_id = int(selected_supplier_id)
             filter_query = Products.supplier_id == selected_supplier_id
         else:
             filter_query = None
@@ -256,7 +278,7 @@ def products():
     if request.method == 'POST':
         name = request.form.get('name')
         barcode = request.form.get('barcode')
-        quantity = request.form.get('quantity')
+        quantity = request.form.get('quantity') or 0
         price = request.form.get('price')
         supplier_id = request.form.get('supplier_id')
         supplier_name = request.form.get('supplier_name')
@@ -269,7 +291,8 @@ def products():
                            products=products_query,
                            suppliers=all_suppliers_query,
                            filter_dropdown_cols=used_suppliers_query,
-                           filter_dropdown_properties=products_columns)
+                           filter_dropdown_properties=products_columns,
+                           selected_supplier_id=selected_supplier_id)
 
 
 @app.route("/product/delete/<int:product_id>", methods=['POST'])
@@ -353,13 +376,21 @@ def update_order(order_id):
     return render_template('update_order.html', order=order.orders, order_amount=order)
 
 
+@app.route("/order/printInvoice/<int:order_id>", methods=['GET'])
+@login_required
+def print_invoice(order_id):
+    printInvoice(order_id)
+    return redirect(url_for('manageorder'))
+
 @app.route("/printInvoice/<int:order_id>")
 @login_required
 def printInvoice(order_id):
     order = Orders.query.get(order_id)
     renderd = render_template('print.html', order=order)
     css = ['orders/static/css/sb-admin-2.min.css']
-    pdf = pdfkit.from_string(renderd, False, css=css)
+    wkhtml_path = pdfkit.configuration(wkhtmltopdf="C:/Program Files/wkhtmltopdf/bin/wkhtmltopdf.exe")  # by using configuration you can add path value.
+
+    pdf = pdfkit.from_string(renderd, False, css=css, configuration = wkhtml_path)
     response = make_response(pdf)
     response.headers['Content-Type'] = 'application/pdf'
     response.headers['Content-Disposition'] = f'attachment; filename = {order_id}.pdf'
@@ -412,3 +443,16 @@ def delete_supplier(supplier_id):
     db.session.delete(supplier)
     db.session.commit()
     return redirect(url_for('suppliers'))
+
+
+
+
+@app.route('/get_products')
+def get_products():
+    products = Products.query.all()
+    products_list = [{'id': product.id,
+                      'name': product.name,
+                      'price': product.price,
+                      'barcode': product.barcode,
+                      'supplier': product.supplier.name} for product in products]
+    return jsonify(products_list)
