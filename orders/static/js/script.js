@@ -110,6 +110,8 @@ $(document).ready(function () {
                         $('#total_amount').val('');
                         row_id = 2;
                         $('#error').html('<div class="alert alert-success">Item Details Saved</div>');
+                        // $('#downloadModal'+ data.order_id).modal('toggle');
+
                     }
                 }
             });
@@ -119,6 +121,10 @@ $(document).ready(function () {
     });
 
 });
+
+
+
+
 
 
 $('#supplier-form').on('submit', function (event) {

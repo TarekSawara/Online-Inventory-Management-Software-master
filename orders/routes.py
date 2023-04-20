@@ -217,7 +217,8 @@ def insert():
         ord = Orders_items(barcode=b, quantity=q, name=n, price=p, total=t, Orders_items=add)
         db.session.add(ord)
     db.session.commit()
-    return jsonify({'data': 'ok'})
+
+    return jsonify({'data': 'ok', 'order_id': add.id})
 
 
 @app.route('/data', methods=['POST'])
