@@ -1,0 +1,27 @@
+[SQLAlchemy Migrations Using Flask-Migrate]
+
+https://www.youtube.com/watch?v=uNmWxvvyBGU
+
+[Update Requirements.txt]
+pip freeze > requirements.txt
+
+
+[Model Change]
+flask db init
+flask db upgrade
+flask db migrate
+Install Flask-Migrate using pip:  pip install Flask-Migrate
+
+Create a migration repository by running the following command in your terminal:
+- flask db init
+Create an initial migration by running the following command:
+- flask db migrate -m "initial migration"
+Apply the migration to the database by running the following command:
+- flask db upgrade
+
+
+[venv activate]
+python -m venv venv
+
+[pdfkit]
+install manually using : https://github.com/JazzCore/python-pdfkit/wiki/Installing-wkhtmltopdf
